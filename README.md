@@ -5,8 +5,9 @@ All audio tracks serve as toggles and send a trigger signal to of via OSC/UDP.
 
 ## Running the app
 
+0. make sure there is a folder `bin/data/video` containing video footage.
 1. start the openframeworks app via `of_rhizophora_röskur$ make RunRelease`
-2. run the purr-data sketch by klicking "start". If `udpsend` says "not connected", connect manually in `[osc_udp_send]`>`connect localhost 9001`
+2. run the purr-data sketch (./Pd/rhizophora-roeskur.pd) by klicking "start". If `udpsend` says "not connected", connect manually in `[osc_udp_send]`>`connect localhost 9001`
 
 
 ## Problems
@@ -33,3 +34,5 @@ dav@dav-ubu:~$ systemctl --user mask pulseaudio.service
 Created symlink /home/dav/.config/systemd/user/pulseaudio.service → /dev/null.
 dav@dav-ubu:~$ pkill pulseaudio 
 ```
+
+**temporary solution:** send UDP signal of bandpass detections only at 100ms interval
