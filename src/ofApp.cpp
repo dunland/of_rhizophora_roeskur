@@ -16,19 +16,23 @@ void ofApp::setup()
     gui.add(maxArea.set("Max area", 200, 1, 500));
     gui.add(threshold.set("Threshold", 128, 0, THRESHOLD_MAX));
     gui.add(holes.set("Holes", false));
+    gui.add(enableContourFinder.set("enableContourFinder", false));
 
     // video setup
     ofDirectory dir("video"); // read folder ./bin/data
     dir.allowExt("mp4");
     dir.listDir();
     dir = dir.getSorted();
+    numVideos = dir.size();
     for (int i = 0; i < dir.size(); i++)
     {
         videoPaths.push_back(dir.getPath(i)); // TODO: alle Bilder anfangs laden!
-        video.load(dir.getPath(i));
+        ofVideoPlayer *video = new ofVideoPlayer();
+        videos.push_back(video);
+        ofLogNotice("loading", dir.getPath(i));
+        video->load(dir.getPath(i));
+        video->play();
     }
-
-    video.play();
 }
 
 //--------------------------------------------------------------
@@ -36,10 +40,14 @@ void ofApp::update()
 {
 
     // Video ---------------------------------------------------
-    video.update();
-    if (video.isFrameNew())
+    for (auto &video : videos)
     {
-        ofPixels &pixels = video.getPixels();
+        video->update();
+    }
+
+    if (videos[videoIdx]->isFrameNew() && enableContourFinder)
+    {
+        ofPixels &pixels = videos[videoIdx]->getPixels();
         contourFinder.setMinAreaRadius(minArea);
         contourFinder.setMaxAreaRadius(maxArea);
         contourFinder.setThreshold(threshold);
@@ -68,8 +76,9 @@ void ofApp::update()
         }
         else if (m.getAddress() == "/snare")
         {
-            maxArea = 35;
-            minArea = 0;
+            // maxArea = 35;
+            // minArea = 0;
+            videoIdx = (videoIdx + 1) % numVideos;
         }
         else if (m.getAddress() == "/bp/90")
         {
@@ -149,19 +158,13 @@ void ofApp::draw()
     // Video: --------------------------------------------------
     ofSetColor(video_r, video_g, video_b);
     // ofSetColor(255);
-    video.draw(0, 0);
+    videos[videoIdx]->draw(0, 0);
 
     // contours
-    ofSetColor(255-video_r, 255-video_g, 255-video_b);
+    ofSetColor(255 - video_r, 255 - video_g, 255 - video_b);
     ofFill();
     contourFinder.draw();
     ofNoFill();
-
-    if (video.getIsMovieDone())
-    {
-        ofSetHexColor(0xFF0000);
-        ofDrawBitmapString("end of movie", 20, 440);
-    }
 
     // Communication -------------------------------------------
     if (globalVerboseLevel > 0)
@@ -199,7 +202,7 @@ void ofApp::keyReleased(int key)
         bDrawGui = !bDrawGui;
         break;
     case 'r':
-        video.setFrame(ofRandom(video.getTotalNumFrames()));
+        videos[videoIdx]->setFrame(ofRandom(videos[videoIdx]->getTotalNumFrames()));
         break;
     case 'v':
         globalVerboseLevel++;
@@ -208,6 +211,10 @@ void ofApp::keyReleased(int key)
     case 'V':
         globalVerboseLevel--;
         ofLogNotice("globalVerboseLevel = " + globalVerboseLevel);
+        break;
+    case '+':
+        videoIdx = (videoIdx + 1) % numVideos;
+        ofLogNotice("videoIdx = " + ofToString(videoIdx) + "playing: " + videoPaths[videoIdx]);
         break;
 
     default:

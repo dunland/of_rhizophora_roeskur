@@ -38,8 +38,11 @@ public:
 	float timers[NUM_MSG_STRINGS];
 
 	// Video:
-	ofVideoPlayer video;
+	vector<ofVideoPlayer*> videos;
+	int videoIdx = 0;
+	int numVideos;
 	int video_r, video_g, video_b;
+	bool drawVid1 = true;
 
 	// Contours:
 	ofxCv::ContourFinder contourFinder;
@@ -48,6 +51,6 @@ public:
 	// Controls:
 	ofxPanel gui;
 	ofParameter<float> minArea, maxArea, threshold;
-	ofParameter<bool> holes;
+	ofParameter<bool> holes, enableContourFinder;
 	bool bDrawGui = false;
 };
