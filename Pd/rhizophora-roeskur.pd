@@ -1,4 +1,4 @@
-#N canvas 960 1117 960 994 10;
+#N canvas 960 61 960 994 10;
 #X obj 16 -38 bng 15 250 50 0 empty empty empty 17 7 0 10 #fcfcfc #000000
 #000000;
 #X msg 16 -15 start;
